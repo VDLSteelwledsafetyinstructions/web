@@ -671,6 +671,8 @@
   z-index: 1000;
   justify-content: center;
   align-items: center;
+  padding: 15px; 
+
 }
 
 .feedback-content {
@@ -697,10 +699,11 @@
 .feedback-header {
   background-color: #005288;
   color: white;
-  padding: 20px;
+  padding: 15px 20px; 
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap; 
 }
 
 .feedback-header h2 {
@@ -716,6 +719,7 @@
   font-size: 1.8rem;
   cursor: pointer;
   transition: all 0.2s;
+  padding: 0 5px; 
 }
 
 .close-feedback:hover {
@@ -749,6 +753,8 @@
   gap: 15px;
   font-size: 2rem;
   margin-bottom: 8px;
+  flex-wrap: wrap; 
+
 }
 
 .rating-star {
@@ -836,6 +842,8 @@
   justify-content: flex-end;
   gap: 15px;
   border-top: 1px solid #eee;
+  flex-wrap: wrap; 
+
 }
 
 .skip-feedback, .submit-feedback {
@@ -939,6 +947,60 @@
   background-color: #003d66;
 }
 
+/* Media queries for better responsiveness */
+@media (max-width: 600px) {
+  .feedback-header {
+    padding: 12px 15px;
+  }
+  
+  .feedback-header h2 {
+    font-size: 1.2rem;
+  }
+  
+  .feedback-body {
+    padding: 15px;
+  }
+  
+  .rating-stars {
+    gap: 10px;
+    font-size: 1.8rem;
+  }
+  
+  .feedback-footer {
+    justify-content: center; /* Center buttons on small screens */
+  }
+  
+  .skip-feedback, .submit-feedback {
+    padding: 8px 15px;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .feedback-header h2 {
+    font-size: 1.1rem;
+    width: 100%; /* Full width on very small screens */
+    margin-bottom: 5px;
+  }
+  
+  .close-feedback {
+    margin-left: auto; /* Push to right side */
+  }
+  
+  .category-tag {
+    padding: 5px 12px;
+    font-size: 0.85rem;
+  }
+  
+  .feedback-footer {
+    flex-direction: column; /* Stack buttons on very small screens */
+    gap: 8px;
+  }
+  
+  .skip-feedback, .submit-feedback {
+    width: 100%; /* Full-width buttons */
+  }
+}
 
   </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
