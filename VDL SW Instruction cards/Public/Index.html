@@ -1,0 +1,2124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Multi-Step Form</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+    
+    body {
+      background-color: #f5f5f5;
+    }
+    
+    .header {
+      background-color: #12337a;
+      min-height: 120px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    
+    .logo {
+      color: white;
+      font-size: 60px;
+      font-weight: bold;
+      text-align: center;
+      line-height: 1.2;
+      width: 100%;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        min-height: 100px;
+      }
+      
+      .logo {
+        font-size: 40px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .header {
+        min-height: 80px;
+      }
+      
+      .logo {
+        font-size: 32px;
+      }
+    }
+    
+    .progress-container {
+      margin: 50px 0;
+      position: relative;
+    }
+    
+    .progress-bar {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      transform: translateY(-50%);
+      height: 2px;
+      width: 100%;
+      background-color: #e0e0e0;
+      z-index: 1;
+    }
+    
+    .progress-completed {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      transform: translateY(-50%);
+      height: 2px;
+      width: 25%; /* Initial width - will be updated by JS */
+      background-color: #3366ff;
+      z-index: 2;
+      transition: width 0.4s ease;
+    }
+    
+    .steps {
+      display: flex;
+      justify-content: space-between;
+      position: relative;
+      z-index: 3;
+    }
+    
+    .step {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background-color: #e0e0e0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: #666;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    
+    .step.active {
+      background-color: #3366ff;
+      color: white;
+    }
+    
+    .form-container {
+      margin-top: 40px;
+    }
+    
+    .step-indicator {
+      color: #666;
+      margin-bottom: 10px;
+    }
+    
+    .form-title {
+      font-size: 28px;
+      margin-bottom: 30px;
+      color: #333;
+    }
+    
+    .form-step {
+      display: none;
+    }
+    
+    .form-step.active {
+      display: block;
+    }
+    
+    .form-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .form-field {
+      flex: 1;
+      min-width: 300px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: 500;
+      color: #555;
+    }
+    
+    input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+    
+    .button-group {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+    
+    .prev-button {
+      background-color: #f5f5f5;
+      color: #666;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 12px 24px;
+      font-size: 16px;
+      cursor: pointer;
+      display: none;
+    }
+    
+    .prev-button:hover {
+      background-color: #e5e5e5;
+    }
+    
+    .next-button {
+      background-color: #3366ff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 12px 24px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-left: auto;
+    }
+    
+    .next-button:hover {
+      background-color: #2952cc;
+    }
+    
+    .invalid {
+      border-color: #ff3333;
+    }
+    
+    .error-message {
+      color: #ff3333;
+      font-size: 14px;
+      margin-top: 5px;
+      display: none;
+    }
+    .pdf-item {
+      margin-bottom: 30px;
+      display: none;
+    }
+    
+    .pdf-item.active {
+      display: block;
+    }
+    
+    .pdf-title {
+      font-size: 18px;
+      margin-bottom: 10px;
+      color: #333;
+      font-weight: bold;
+    }
+    
+    .pdf-viewer {
+      width: 100%;
+      height: 600px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+    
+    .intro-text {
+      margin-bottom: 30px;
+      line-height: 1.6;
+      color: #444;
+    }
+    
+    .gdpr-notice {
+      background-color: #f0f7ff;
+      border-left: 4px solid #3366ff;
+      padding: 15px;
+      margin-bottom: 30px;
+      line-height: 1.6;
+      color: #444;
+    }
+    
+    .checkbox-group {
+      margin-bottom: 30px;
+    }
+    
+    .checkbox-item {
+      margin-bottom: 15px;
+    }
+    
+    .checkbox-label {
+      display: inline;
+      margin-left: 10px;
+    }
+    
+    .hazard-category {
+      margin-bottom: 30px;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 15px;
+    }
+    
+    .category-title {
+      font-size: 20px;
+      margin-bottom: 15px;
+      color: #12337a;
+      font-weight: bold;
+    }
+    
+    .question-item {
+      margin-bottom: 20px;
+      padding-left: 15px;
+      border-left: 3px solid #e0e0e0;
+    }
+    
+    .question-text {
+      font-weight: 500;
+      margin-bottom: 10px;
+    }
+    
+    .radio-group {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 5px;
+    }
+    
+    .radio-label {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+    
+    .radio-label input {
+      width: auto;
+      margin-right: 8px;
+    }
+
+    .confirmation-container {
+  background-color: #f0f7ff;
+  border-radius: 6px;
+  padding: 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.confirmation-text {
+  margin-bottom: 20px;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: flex-start; 
+  margin-bottom: 15px;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: flex-start; 
+  margin-bottom: 0;
+}
+
+.checkbox-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin-right: 12px;
+  cursor: pointer;
+  margin-top: 3px; 
+}
+
+.checkbox-label {
+  font-weight: 500;
+  cursor: pointer;
+  line-height: 1.5; 
+}
+
+.landing-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 50px 20px;
+      text-align: center;
+      animation: fadeIn 0.8s ease-in-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .landing-title {
+      font-size: 32px;
+      color: #12337a;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+    
+    .landing-subtitle {
+      font-size: 18px;
+      color: #555;
+      margin-bottom: 50px;
+      line-height: 1.6;
+    }
+    
+    .role-selection {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 40px;
+      margin-top: 30px;
+    }
+    
+    .role-card {
+      background-color: white;
+      border-radius: 10px;
+      width: 280px;
+      padding: 40px 20px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .role-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .role-card:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 5px;
+      height: 100%;
+      background-color: #3366ff;
+    }
+    
+    .role-icon {
+      font-size: 48px;
+      margin-bottom: 20px;
+      color: #3366ff;
+    }
+    
+    .role-title {
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 15px;
+      color: #333;
+    }
+    
+    .role-description {
+      color: #666;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 25px;
+    }
+    
+    .role-button {
+      background-color: #3366ff;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 12px 30px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      font-weight: 500;
+    }
+    
+    .role-button:hover {
+      background-color: #2952cc;
+    }
+    
+    .safety-note {
+      margin-top: 60px;
+      padding: 15px;
+      background-color: #f0f7ff;
+      border-left: 4px solid #3366ff;
+      text-align: left;
+      border-radius: 4px;
+    }
+    
+    .safety-note p {
+      color: #555;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    
+    @media (max-width: 768px) {
+      .header {
+        min-height: 100px;
+      }
+      
+      .logo {
+        font-size: 40px;
+      }
+      
+      .landing-title {
+        font-size: 28px;
+      }
+      
+      .role-selection {
+        gap: 20px;
+      }
+      
+      .role-card {
+        width: 100%;
+        max-width: 280px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .header {
+        min-height: 80px;
+      }
+      
+      .logo {
+        font-size: 32px;
+      }
+      
+      .landing-title {
+        font-size: 24px;
+      }
+      
+      .landing-subtitle {
+        font-size: 16px;
+      }
+    }
+
+    .form-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+  
+  .form-field {
+    flex: 1;
+    min-width: 300px;
+    position: relative;
+  }
+  
+  label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+    font-weight: 500;
+    color: #12337a;
+    font-size: 15px;
+    transition: color 0.3s ease;
+  }
+  
+  .field-icon {
+    margin-right: 8px;
+    color: #3366ff;
+  }
+  
+  .input-container,
+  .select-container {
+    position: relative;
+    width: 100%;
+  }
+  
+  .styled-input,
+  .styled-select {
+    width: 100%;
+    padding: 14px 16px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 16px;
+    color: #444;
+    background-color: #fff;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+  }
+  
+  .styled-input:focus,
+  .styled-select:focus {
+    outline: none;
+    border-color: #3366ff;
+    box-shadow: 0 2px 8px rgba(51, 102, 255, 0.15);
+  }
+  
+  .focus-border {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background-color: #3366ff;
+    transition: all 0.3s ease;
+  }
+  
+  .styled-input:focus ~ .focus-border,
+  .styled-select:focus ~ .focus-border {
+    width: 100%;
+    left: 0;
+  }
+  
+  .select-container {
+    position: relative;
+  }
+  
+  .select-arrow {
+    position: absolute;
+    top: 50%;
+    right: 12px;
+    transform: translateY(-50%);
+    color: #666;
+    pointer-events: none;
+    transition: color 0.3s ease;
+  }
+  
+  .styled-select:focus + .select-arrow {
+    color: #3366ff;
+  }
+  
+  .styled-input:hover,
+  .styled-select:hover {
+    border-color: #c0c0c0;
+  }
+  
+  .error-message {
+    color: #ff3366;
+    font-size: 13px;
+    margin-top: 8px;
+    display: none;
+    padding-left: 2px;
+    font-weight: 500;
+    opacity: 0;
+    animation: fadeIn 0.3s ease forwards;
+  }
+  
+  .styled-input.invalid,
+  .styled-select.invalid {
+    border-color: #ff3366;
+    background-color: #fff0f3;
+  }
+  
+  .styled-input.invalid + .select-arrow {
+    color: #ff3366;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  /* Date input specific styling */
+  input[type="date"] {
+    padding-right: 10px;
+  }
+  
+  /* Custom date picker icon appearance */
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 0.7;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+  }
+  
+  input[type="date"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+  }
+  
+  /* Add animation when fields appear */
+  .form-field {
+    animation: slideIn 0.5s ease-out forwards;
+  }
+  
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+  /* Add slight delay to second form field for cascading effect */
+  .form-field:nth-child(2) {
+    animation-delay: 0.1s;
+  }
+  
+  /* Mobile responsiveness */
+  @media (max-width: 768px) {
+    .form-field {
+      min-width: 100%;
+    }
+  }
+
+  /* Feedback Popup Styles */
+.feedback-popup {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+
+.feedback-content {
+  background-color: #fff;
+  width: 90%;
+  max-width: 550px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.feedback-header {
+  background-color: #005288;
+  color: white;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.feedback-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.close-feedback {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.close-feedback:hover {
+  transform: scale(1.2);
+}
+
+.feedback-body {
+  padding: 25px;
+}
+
+.feedback-intro {
+  color: #555;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.feedback-rating {
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.feedback-rating p {
+  margin-bottom: 10px;
+  font-weight: 500;
+  color: #333;
+}
+
+.rating-stars {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+
+.rating-star {
+  color: #ccc;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.rating-star:hover, .rating-star.active {
+  color: #FFD700;
+  transform: scale(1.1);
+}
+
+.rating-text {
+  font-size: 0.9rem;
+  color: #777;
+  height: 20px;
+}
+
+.feedback-form-group {
+  margin-bottom: 25px;
+}
+
+.feedback-form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+}
+
+.feedback-form-group textarea {
+  width: 100%;
+  height: 120px;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 1rem;
+  resize: none;
+  transition: border-color 0.2s;
+}
+
+.feedback-form-group textarea:focus {
+  outline: none;
+  border-color: #005288;
+  box-shadow: 0 0 0 2px rgba(0, 82, 136, 0.2);
+}
+
+.feedback-categories p {
+  margin-bottom: 10px;
+  font-weight: 500;
+  color: #333;
+}
+
+.category-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.category-tag {
+  display: inline-block;
+  padding: 6px 15px;
+  background-color: #f0f0f0;
+  color: #555;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.category-tag:hover {
+  background-color: #e0e0e0;
+}
+
+.category-tag[data-selected="true"] {
+  background-color: #005288;
+  color: white;
+}
+
+.feedback-footer {
+  padding: 20px;
+  background-color: #f9f9f9;
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  border-top: 1px solid #eee;
+}
+
+.skip-feedback, .submit-feedback {
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.skip-feedback {
+  background-color: transparent;
+  border: 1px solid #ccc;
+  color: #555;
+}
+
+.skip-feedback:hover {
+  background-color: #f0f0f0;
+}
+
+.submit-feedback {
+  background-color: #005288;
+  border: none;
+  color: white;
+}
+
+.submit-feedback:hover {
+  background-color: #003d66;
+}
+
+/* Thank you popup */
+.thank-you-popup {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  justify-content: center;
+  align-items: center;
+}
+
+.thank-you-content {
+  background-color: #fff;
+  width: 90%;
+  max-width: 400px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  padding: 30px;
+  text-align: center;
+  animation: bounceIn 0.5s;
+}
+
+@keyframes bounceIn {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.thank-you-icon {
+  font-size: 3.5rem;
+  color: #4CAF50;
+  margin-bottom: 15px;
+}
+
+.thank-you-content h2 {
+  color: #333;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.thank-you-content p {
+  color: #555;
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+.close-thank-you {
+  margin-top: 20px;
+  padding: 10px 25px;
+  background-color: #005288;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.close-thank-you:hover {
+  background-color: #003d66;
+}
+
+
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+</head>
+<body>
+  <div class="header">
+    <div class="logo">VDL Steelweld</div>
+  </div>
+  </div>
+
+  <!-- Landing Page -->
+
+  <div class="landing-container" id="landing-page">
+    <h1 class="landing-title">Welcome to VDL Steelweld Safety Documentation</h1>
+    <p class="landing-subtitle">Please select your role to access the appropriate safety information and documentation</p>
+    
+    <div class="role-selection">
+      <div class="role-card" id="visitor-card">
+        <div class="role-icon">
+          <i class="fas fa-user-tie"></i>
+        </div>
+        <h2 class="role-title">Visitor</h2>
+        <p class="role-description">For guests, clients, and temporary visitors to VDL Steelweld facilities. Access basic safety guidelines and visitor protocols.</p>
+        <button class="role-button" id="visitor-btn">Continue as Visitor</button>
+      </div>
+      
+      <div class="role-card" id="contractor-card">
+        <div class="role-icon">
+          <i class="fas fa-hard-hat"></i>
+        </div>
+        <h2 class="role-title">Contractor</h2>
+        <p class="role-description">For external contractors and service providers working at VDL Steelweld sites. Access comprehensive safety documentation.</p>
+        <button class="role-button" id="contractor-btn">Continue as Contractor</button>
+      </div>
+    </div>
+    
+    <div class="safety-note">
+      <p><strong>Note:</strong> Safety is our top priority at VDL Steelweld. Please ensure you complete all required documentation before entering our facilities.</p>
+    </div>
+  </div>
+
+  
+<div class="container" style="display:none;">
+  <div class="progress-container">
+      <div class="progress-bar"></div>
+      <div class="progress-completed" id="progress-bar"></div>
+      <div class="steps">
+        <div class="step active" data-step="1">1</div>
+        <div class="step" data-step="2">2</div>
+        <div class="step" data-step="3">3</div>
+        <div class="step" data-step="4">4</div>
+      </div>
+    </div>
+    
+    <div class="form-container">
+      
+     <!-- Step 1 -->
+    <div class="form-step active" id="step-1">
+      <div class="step-indicator">Step 1 of 4</div>
+      <h1 class="form-title">Profile Information</h1>
+      
+      <div class="intro-text">
+        <p>Welcome to the VDL Steelweld safety documentation system. This form will guide you through the necessary steps to ensure you have all the required safety information before starting work.</p>
+        <p>Please complete all fields to proceed to the next step.</p>
+      </div>
+      
+      <div class="gdpr-notice">
+        <p><strong>GDPR Compliance Notice:</strong> In accordance with the EU General Data Protection Regulation (GDPR), we would like to inform you that:</p>
+        <ul style="margin-left: 20px; margin-top: 10px;">
+          <li>Your personal information will be automatically deleted after 24 hours</li>
+          <li>Your data is only used for safety purposes</li>
+          <li>No information will be shared with third parties</li>
+          <li>You have the right to request deletion of your data at any time</li>
+        </ul>
+      </div>
+      
+      <div class="form-group">
+        <div class="form-field">
+          <label for="name">
+            <i class="fas fa-user field-icon"></i>
+            Name
+          </label>
+          <div class="input-container">
+            <input type="text" id="name" name="name" class="styled-input" placeholder="Enter your full name">
+            <div class="focus-border"></div>
+          </div>
+          <div class="error-message" id="name-error">Please enter your name</div>
+        </div>
+        <div class="form-field">
+          <label for="company">
+            <i class="fas fa-building field-icon"></i>
+            Company name
+          </label>
+          <div class="input-container">
+            <input type="text" id="company" name="company" class="styled-input" placeholder="Enter your company name">
+            <div class="focus-border"></div>
+          </div>
+          <div class="error-message" id="company-error">Please enter your company name</div>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <div class="form-field">
+          <label for="email">
+            <i class="fas fa-envelope field-icon"></i>
+            Email
+          </label>
+          <div class="input-container">
+            <input type="email" id="email" name="email" class="styled-input" placeholder="example@company.com">
+            <div class="focus-border"></div>
+          </div>
+          <div class="error-message" id="email-error">Please enter a valid email address</div>
+        </div>
+        <div class="form-field">
+          <label for="phone">
+            <i class="fas fa-phone-alt field-icon"></i>
+            Phone number
+          </label>
+          <div class="input-container">
+            <input type="tel" id="phone" name="phone" class="styled-input" placeholder="06X XXX XXXX">
+            <div class="focus-border"></div>
+          </div>
+          <div class="error-message" id="phone-error">Please enter a valid phone number</div>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <div class="form-field">
+          <label for="start_date">
+            <i class="far fa-calendar-alt field-icon"></i>
+            Starting Date
+          </label>
+          <div class="input-container">
+            <input type="date" id="start_date" name="start_date" class="styled-input">
+            <div class="focus-border"></div>
+          </div>
+          <div class="error-message" id="start_date-error">Please select a starting date</div>
+        </div>
+        <div class="form-field">
+          <label for="end_date">
+            <i class="far fa-calendar-check field-icon"></i>
+            End Date
+          </label>
+          <div class="input-container">
+            <input type="date" id="end_date" name="end_date" class="styled-input">
+            <div class="focus-border"></div>
+          </div>
+          <div class="error-message" id="end_date-error">Please select an end date</div>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <div class="form-field">
+          <label for="supervisor">
+            <i class="fas fa-user-tie field-icon"></i>
+            Supervisor
+          </label>
+          <div class="select-container">
+            <select id="supervisor" name="supervisor" class="styled-select">
+              <option value="">Select a Supervisor</option>
+              <option value="Wim de Witte">Wim de Witte</option>
+              <option value="Wouter Huijser">Wouter Huijser</option>
+              <option value="Sultan Mousa">Sultan Mousa</option>
+            </select>
+            <div class="select-arrow"><i class="fas fa-chevron-down"></i></div>
+            <div class="focus-border"></div>
+          </div>
+          <div class="error-message" id="supervisor-error">Please select a supervisor</div>
+        </div>
+      </div>
+      
+      <div class="button-group">
+        <button type="button" class="next-button" id="next-1">Next step</button>
+      </div>
+    </div>
+
+      
+      
+      <!-- Step 2 -->
+      <div class="form-step" id="step-2">
+        <div class="step-indicator">Step 2 of 4</div>
+        <h1 class="form-title">Work Environment & Hazards</h1>
+        
+        <p class="intro-text">Please answer the following questions about your work environment and tasks. Select "Yes" for all applicable items.</p>
+        
+        <!-- Category 1: General / Common Hazards -->
+        <div class="hazard-category">
+          <h2 class="category-title">1. General / Common Hazards</h2>
+          
+          <div class="question-item">
+            <p class="question-text">1.1 Will you be working in any confined spaces (tanks, pits, enclosed areas)?</p>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="confined_spaces" value="yes" data-pdf="I.01.01.pdf"> Yes
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="confined_spaces" value="no" checked> No
+              </label>
+            </div>
+          </div>
+          
+          <div class="question-item">
+            <p class="question-text">1.2 Will you be handling, machining, or otherwise working with metal parts?</p>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="metal_parts" value="yes" data-pdf="I.01.02.pdf"> Yes
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="metal_parts" value="no" checked> No
+              </label>
+            </div>
+          </div>
+          
+          <div class="question-item">
+            <p class="question-text">1.3 Will you be working on or near any electrical installations, cables, or equipment?</p>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="electricity" value="yes" data-pdf="I.01.09.pdf"> Yes
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="electricity" value="no" checked> No
+              </label>
+            </div>
+          </div>
+          
+          <div class="question-item">
+            <p class="question-text">1.4 Will you be using or exposed to hazardous substances or chemicals (including labeling)?</p>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="hazardous_substances" value="yes" data-pdf="I.01.15.pdf,I.01.25.pdf"> Yes
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="hazardous_substances" value="no" checked> No
+              </label>
+            </div>
+          </div>
+          
+          <div class="question-item">
+            <p class="question-text">1.5 Are scatter magnets required in your work (handling ferrous materials, magnetizing parts)?</p>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="scatter_magnets" value="yes" data-pdf="I.01.16.pdf"> Yes
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="scatter_magnets" value="no" checked> No
+              </label>
+            </div>
+          </div>
+          
+          <div class="question-item">
+            <p class="question-text">1.6 Will you be using computer workstations or display screens for extended periods?</p>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="display_screens" value="yes" data-pdf="I.01.17.pdf"> Yes
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="display_screens" value="no" checked> No
+              </label>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Category 2: Working at Height / Lifting & Access Equipment -->
+        <div class="hazard-category">
+          <h2 class="category-title">2. Working at Height / Lifting & Access Equipment</h2>
+          
+          <div class="question-item">
+            <p class="question-text">2.1 Will you be working above ground level (on scaffolding, roofs, or elevated platforms)?</p>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="working_height" value="yes" data-pdf="I.01.08.pdf"> Yes
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="working_height" value="no" checked> No
+              </label>
+            </div>
+          </div>
+          
+          <div class="question-item">
+            <p class="question-text">2.2 Will you be using a ladder or aerial lift (e.g., scissor lift, cherry picker)?</p>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="ladders_aerial_lifts" value="yes" data-pdf="I.01.24.pdf,I.01.26.pdf"> Yes
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="ladders_aerial_lifts" value="no" checked> No
+              </label>
+            </div>
+          </div>
+          
+          <div class="question-item">
+            <p class="question-text">2.3 Will you be using any forklifts or telehandlers (to move or lift materials)?</p>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="forklifts_telehandlers" value="yes" data-pdf="I.01.07.pdf,I.01.11.pdf"> Yes
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="forklifts_telehandlers" value="no" checked> No
+              </label>
+            </div>
+          </div>
+          
+          <div class="question-item">
+            <p class="question-text">2.4 Will you be charging any electric forklifts?</p>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="charging_forklifts" value="yes" data-pdf="I.01.27.pdf"> Yes
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="charging_forklifts" value="no" checked> No
+              </label>
+            </div>
+          </div>
+          
+          <div class="question-item">
+            <p class="question-text">2.5 Will you be setting up or operating any lifting equipment (hoists, cranes, etc.)?</p>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="lifting_equipment" value="yes" data-pdf="I.01.10.pdf"> Yes
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="lifting_equipment" value="no" checked> No
+              </label>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Category 3: Machining & Metalworking -->
+        <div class="hazard-category">
+          <h2 class="category-title">3. Machining & Metalworking</h2>
+          
+          <div class="question-item">
+            <p class="question-text">3.1 Are you going to cut, drill, or grind materials? (Hand drilling, drill press, angle grinder, etc.)</p>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="cutting_drilling_grinding" value="yes" data-pdf="I.01.03.pdf,I.01.06.pdf,I.01.12.pdf"> Yes
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="cutting_drilling_grinding" value="no" checked> No
+              </label>
+            </div>
+          </div>
+          
+          <div class="question-item">
+            <p class="question-text">3.2 Will you be doing any torch cutting?</p>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="torch_cutting" value="yes" data-pdf="I.01.13.pdf"> Yes
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="torch_cutting" value="no" checked> No
+              </label>
+            </div>
+          </div>
+          
+          <div class="question-item">
+            <p class="question-text">3.3 Are you working with sheet metal, shears, punching machines, or press brakes?</p>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="sheet_metal" value="yes" data-pdf="I.01.20.pdf,I.01.21.pdf,I.01.14.pdf"> Yes
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="sheet_metal" value="no" checked> No
+              </label>
+            </div>
+          </div>
+          
+          <div class="question-item">
+            <p class="question-text">3.4 Do your tasks involve welding (electrodes) or a metal rolling mill?</p>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="welding_rolling" value="yes" data-pdf="I.01.04.pdf,I.01.22.pdf"> Yes
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="welding_rolling" value="no" checked> No
+              </label>
+            </div>
+          </div>
+          
+          <div class="question-item">
+            <p class="question-text">3.5 Will you use band saws (wood or metal) or a milling machine?</p>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="saws_milling" value="yes" data-pdf="I.01.18.pdf,I.01.19.pdf,I.01.29.pdf,I.01.30.pdf"> Yes
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="saws_milling" value="no" checked> No
+              </label>
+            </div>
+          </div>
+          
+          <div class="question-item">
+            <p class="question-text">3.6 Will you operate a bench grinder, sanding machine, or metal lathe?</p>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="grinder_sanding_lathe" value="yes" data-pdf="I.01.32.pdf,I.01.33.pdf,I.01.34.pdf"> Yes
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="grinder_sanding_lathe" value="no" checked> No
+              </label>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Category 4: Powered or Pressurized Equipment -->
+        <div class="hazard-category">
+          <h2 class="category-title">4. Powered or Pressurized Equipment</h2>
+          
+          <div class="question-item">
+            <p class="question-text">4.1 Will you be working with pneumatic equipment or compressed air tools?</p>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="pneumatic_tools" value="yes" data-pdf="I.01.23.pdf"> Yes
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="pneumatic_tools" value="no" checked> No
+              </label>
+            </div>
+          </div>
+        </div>
+        
+        <div class="button-group">
+          <button type="button" class="prev-button" id="prev-2">Previous</button>
+          <button type="button" class="next-button" id="next-2">Next step</button>
+        </div>
+      </div>
+      
+      <!-- Step 3 -->
+      <div class="form-step" id="step-3">
+        <div class="step-indicator">Step 3 of 4</div>
+        <h1 class="form-title">Required Safety Documentation</h1>
+        
+        <p>Based on your work environment selections, please review the following safety documentation:</p>
+        
+        <div class="pdf-container" id="pdf-container">
+          <!-- PDF viewers will be dynamically inserted here based on user selections -->
+        </div>
+        
+        <div class="button-group">
+          <button type="button" class="prev-button" id="prev-3">Previous</button>
+          <button type="button" class="next-button" id="next-3">Next step</button>
+        </div>
+      </div>
+      
+      <!-- Step 4 --> 
+      <div class="form-step" id="step-4"> 
+        <div class="step-indicator">Step 4 of 4</div> 
+        <h1 class="form-title">Confirmation</h1> 
+        
+        <div class="confirmation-container">
+          <p class="confirmation-text">Please confirm that you have reviewed all the safety documentation relevant to your work environment.</p> 
+          
+          <div class="checkbox-container">
+            <div class="checkbox-item"> 
+              <input type="checkbox" id="confirm-review" name="confirm_review" value="confirmed"> 
+              <label class="checkbox-label" for="confirm-review">I confirm that I have read and understood all the safety documentation provided.</label> 
+            </div>
+          </div>
+        </div>
+        
+        <div class="button-group"> 
+          <button type="button" class="prev-button" id="prev-4">Previous</button> 
+          <button type="button" class="next-button" id="submit-form">Submit</button> 
+        </div> 
+      </div>
+
+      <!-- Feedback Popup -->
+      <div class="feedback-popup" id="feedback-popup">
+        <div class="feedback-content">
+          <div class="feedback-header">
+            <h2>Your Input Helps Us Improve</h2>
+            <button class="close-feedback" id="close-feedback">×</button>
+          </div>
+          
+          <div class="feedback-body">
+            <p class="feedback-intro">
+              Thank you for reviewing our safety instructions. Your honest feedback helps us enhance the clarity and effectiveness of our process.
+            </p>
+            
+            <div class="feedback-rating">
+              <p>How clear and useful were the instructions?</p>
+              <div class="rating-stars">
+                <i class="far fa-star rating-star" data-rating="1"></i>
+                <i class="far fa-star rating-star" data-rating="2"></i>
+                <i class="far fa-star rating-star" data-rating="3"></i>
+                <i class="far fa-star rating-star" data-rating="4"></i>
+                <i class="far fa-star rating-star" data-rating="5"></i>
+              </div>
+              <div class="rating-text" id="rating-text">Select a rating</div>
+            </div>
+            
+            <div class="feedback-form-group">
+              <label for="feedback-comment">What improvements would make these instructions more effective?</label>
+              <textarea id="feedback-comment" placeholder="Share your suggestions, e.g. Was any part unclear? Were key details missing?"></textarea>
+            </div>
+            
+            <div class="feedback-categories">
+              <p>Which part of the process does your feedback relate to? (Optional)</p>
+              <div class="category-tags">
+                <span class="category-tag" data-selected="false">Content Clarity</span>
+                <span class="category-tag" data-selected="false">Documentation Relevance</span>
+                <span class="category-tag" data-selected="false">Ease of Use</span>
+                <span class="category-tag" data-selected="false">Overall Experience</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="feedback-footer">
+            <button class="skip-feedback" id="skip-feedback">Skip</button>
+            <button class="submit-feedback" id="submit-feedback">Submit Feedback</button>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Thank you message after feedback submission -->
+      <div class="thank-you-popup" id="thank-you-popup">
+        <div class="thank-you-content">
+          <div class="thank-you-icon">
+            <i class="fas fa-check-circle"></i>
+          </div>
+          <h2>Thank You!</h2>
+          <p>Your feedback has been submitted successfully.</p>
+          <p>We appreciate your input to help us improve.</p>
+          <button class="close-thank-you" id="close-thank-you">Close</button>
+        </div>
+      </div>
+
+  <script>
+  document.addEventListener('DOMContentLoaded', function() {
+  // Get all steps
+  const steps = document.querySelectorAll('.step');
+  const formSteps = document.querySelectorAll('.form-step');
+  const progressBar = document.getElementById('progress-bar');
+  const inputs = document.querySelectorAll('.styled-input, .styled-select');
+  let currentStep = 1;
+  
+  // Function to update steps
+  function updateStep(stepNumber) {
+    // Hide all steps
+    formSteps.forEach(step => {
+      step.classList.remove('active');
+    });
+    
+    // Show current step
+    document.getElementById(`step-${stepNumber}`).classList.add('active');
+    
+    // Update step indicators
+    steps.forEach(step => {
+      const stepNum = parseInt(step.getAttribute('data-step'));
+      if (stepNum <= stepNumber) {
+        step.classList.add('active');
+      } else {
+        step.classList.remove('active');
+      }
+    });
+    
+    // Update progress bar
+    const progress = ((stepNumber - 1) / (steps.length - 1)) * 100;
+    progressBar.style.width = `${progress}%`;
+    
+    // Update current step
+    currentStep = stepNumber;
+    
+    // Show/hide previous button
+    const prevButtons = document.querySelectorAll('.prev-button');
+    prevButtons.forEach(button => {
+      if (stepNumber > 1) {
+        button.style.display = 'block';
+      } else {
+        button.style.display = 'none';
+      }
+    });
+
+    // If moving to step 3, update PDFs
+    if (stepNumber === 3) {
+      updatePDFs();
+    }
+  }
+  
+  // Handle PDFs for Step 3 based on radio button selections
+  function updatePDFs() {
+    // Clear existing PDF items
+    const pdfContainer = document.getElementById('pdf-container');
+    pdfContainer.innerHTML = '';
+    
+    // Find all selected "yes" radio buttons with data-pdf attribute
+    const selectedRadios = document.querySelectorAll('input[type="radio"][value="yes"]:checked');
+    
+    // If no hazards selected
+    if (selectedRadios.length === 0) {
+      const message = document.createElement('p');
+      message.id = 'no-pdfs-message';
+      message.textContent = 'No work enviroment selected. Please go back to Step 2 and select at least one applicable work enviroment.';
+      message.style.color = '#ff3333';
+      message.style.fontWeight = 'bold';
+      message.style.marginTop = '20px';
+      pdfContainer.appendChild(message);
+      return;
+    }
+    
+    // Process each selected radio button
+    selectedRadios.forEach(radio => {
+      const pdfFiles = radio.getAttribute('data-pdf');
+      if (!pdfFiles) return;
+      
+      // Handle multiple PDFs for a single selection (comma-separated)
+      pdfFiles.split(',').forEach(pdfFile => {
+        // Create a PDF item
+        const pdfItem = document.createElement('div');
+        pdfItem.className = 'pdf-item active';
+        
+        // Get the question text for this hazard
+        const questionElement = radio.closest('.question-item').querySelector('.question-text');
+        const questionText = questionElement ? questionElement.textContent : 'Safety Documentation';
+        
+        // Create PDF title
+        const pdfTitle = document.createElement('h3');
+        pdfTitle.className = 'pdf-title';
+        pdfTitle.textContent = `${questionText} - ${pdfFile}`;
+        
+        // Create PDF viewer (iframe)
+        const pdfViewer = document.createElement('iframe');
+        pdfViewer.className = 'pdf-viewer';
+        pdfViewer.src = `safety-docs/${pdfFile}`; // Adjust path as needed
+        pdfViewer.setAttribute('title', pdfFile);
+        
+        // Add elements to the container
+        pdfItem.appendChild(pdfTitle);
+        pdfItem.appendChild(pdfViewer);
+        pdfContainer.appendChild(pdfItem);
+      });
+    });
+  }
+  
+  // Validate form fields
+  function validateField(field) {
+    const value = field.value.trim();
+    const errorElement = document.getElementById(`${field.id}-error`);
+    
+    if (!value) {
+      field.classList.add('invalid');
+      errorElement.style.display = 'block';
+      return false;
+    } else {
+      field.classList.remove('invalid');
+      errorElement.style.display = 'none';
+      return true;
+    }
+  }
+  
+  function validateEmail(email) {
+    const value = email.value.trim();
+    const errorElement = document.getElementById(`${email.id}-error`);
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    if (!value || !emailPattern.test(value)) {
+      email.classList.add('invalid');
+      errorElement.style.display = 'block';
+      return false;
+    } else {
+      email.classList.remove('invalid');
+      errorElement.style.display = 'none';
+      return true;
+    }
+  }
+  
+  function validatePhone(phone) {
+    const value = phone.value.trim();
+    const errorElement = document.getElementById(`${phone.id}-error`);
+    const phonePattern = /^[0-9+\s()-]{8,20}$/; // Basic phone validation
+    
+    if (!value || !phonePattern.test(value)) {
+      phone.classList.add('invalid');
+      errorElement.style.display = 'block';
+      return false;
+    } else {
+      phone.classList.remove('invalid');
+      errorElement.style.display = 'none';
+      return true;
+    }
+  }
+
+
+  // Next button event listeners
+  document.getElementById('next-1').addEventListener('click', function() {
+    let valid = true;
+    
+    // Define required fields with their corresponding error elements and messages
+    const fields = [
+      { id: 'name', errorId: 'name-error', message: 'Please enter your name' },
+      { id: 'company', errorId: 'company-error', message: 'Please enter your company name' },
+      { id: 'email', errorId: 'email-error', message: 'Please enter a valid email address' },
+      { id: 'phone', errorId: 'phone-error', message: 'Please enter a valid phone number' },
+      { id: 'start_date', errorId: 'start_date-error', message: 'Please select a starting date' },
+      { id: 'end_date', errorId: 'end_date-error', message: 'Please select an end date' },
+      { id: 'supervisor', errorId: 'supervisor-error', message: 'Please select a supervisor' }
+    ];
+    
+    // Validate each field is not empty
+    fields.forEach(field => {
+      const input = document.getElementById(field.id);
+      if (input.value.trim() === '' || (field.id === 'supervisor' && input.value === '')) {
+        valid = false;
+        document.getElementById(field.errorId).textContent = field.message;
+        document.getElementById(field.errorId).style.display = 'block';
+      } else {
+        document.getElementById(field.errorId).style.display = 'none';
+      }
+    });
+    
+    // Validate that the starting date is not before today
+    const startDateValue = document.getElementById('start_date').value;
+    if (startDateValue) {
+      const startDate = new Date(startDateValue);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (startDate < today) {
+        valid = false;
+        document.getElementById('start_date-error').textContent = 'Starting date cannot be before today';
+        document.getElementById('start_date-error').style.display = 'block';
+      }
+    }
+    
+    // Validate that the end date is not before the starting date
+    const endDateValue = document.getElementById('end_date').value;
+    if (endDateValue && startDateValue) {
+      const startDate = new Date(startDateValue);
+      const endDate = new Date(endDateValue);
+      if (endDate < startDate) {
+        valid = false;
+        document.getElementById('end_date-error').textContent = 'End date cannot be before starting date';
+        document.getElementById('end_date-error').style.display = 'block';
+      }
+    }
+    
+    if (valid) {
+      // If all validations pass, go to next step
+      updateStep(2);
+      scrollToTop();
+    } else {
+      alert('Please complete all required fields correctly before proceeding.');
+    }
+  });
+  
+  document.getElementById('next-2').addEventListener('click', function() {
+    updateStep(3);
+    scrollToTop();
+  });
+  
+  document.getElementById('next-3').addEventListener('click', function() {
+    updateStep(4);
+    scrollToTop();
+  });
+  
+  // Previous button event listeners
+  document.getElementById('prev-2').addEventListener('click', function() {
+    updateStep(1);
+    scrollToTop();
+  });
+  
+  document.getElementById('prev-3').addEventListener('click', function() {
+    updateStep(2);
+    scrollToTop();
+  });
+  
+  document.getElementById('prev-4').addEventListener('click', function() {
+    updateStep(3);
+    scrollToTop();
+  });
+
+  // Function to scroll to top of the page
+  function scrollToTop() {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  }
+
+  // Function to reset the entire form
+function resetEntireForm() {
+  // Reset to step 1
+  updateStep(1);
+  
+  // Clear all form fields
+  document.getElementById('name').value = '';
+  document.getElementById('company').value = '';
+  document.getElementById('email').value = '';
+  document.getElementById('phone').value = '';
+  document.getElementById('start_date').value = '';
+  document.getElementById('end_date').value = '';
+  document.getElementById('supervisor').value = '';
+  
+  // Reset all radio buttons to default (no)
+  const radioButtons = document.querySelectorAll('input[type="radio"][value="yes"]:checked');
+  radioButtons.forEach(radio => {
+    radio.checked = false;
+    const noRadio = document.querySelector(`input[name="${radio.name}"][value="no"]`);
+    if (noRadio) {
+      noRadio.checked = true;
+    }
+  });
+  
+  // Clear any checkboxes
+  const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+  checkboxes.forEach(checkbox => {
+    checkbox.checked = false;
+  });
+  
+  // Reset the confirmation checkbox
+  if (document.getElementById('confirm-review')) {
+    document.getElementById('confirm-review').checked = false;
+  }
+  
+  // Reset any validation error messages
+  const errorMessages = document.querySelectorAll('[id$="-error"]');
+  errorMessages.forEach(error => {
+    error.style.display = 'none';
+  });
+  
+  // Clear any invalid classes from input fields
+  const allInputs = document.querySelectorAll('.styled-input, .styled-select');
+  allInputs.forEach(input => {
+    input.classList.remove('invalid');
+  });
+  
+  // Optionally, show the landing page again if it exists
+  const landingPage = document.getElementById('landing-page');
+  if (landingPage) {
+    landingPage.style.display = 'block';
+    document.querySelector('.container').style.display = 'none';
+  }
+  
+  // Scroll back to top
+  scrollToTop();
+}
+
+  // Landing page event listeners
+  if (document.getElementById('visitor-btn')) {
+    document.getElementById('visitor-btn').addEventListener('click', function() {
+      // Redirect visitors to your specified website – replace the URL below.
+      window.location.href = "https://www.vdlsteelweld.com/en";
+    });
+  }
+
+  if (document.getElementById('contractor-btn')) {
+    document.getElementById('contractor-btn').addEventListener('click', function() {
+      // Hide the landing page and show the main form container
+      document.getElementById('landing-page').style.display = 'none';
+      document.querySelector('.container').style.display = 'block';
+    });
+  }
+
+  //--------------------------------//--------------------------------//--------------------------------//--------------------------------
+
+  // Feedback System Integration
+  // Get feedback elements
+  const feedbackPopup = document.getElementById('feedback-popup');
+  const closeFeedbackBtn = document.getElementById('close-feedback');
+  const skipFeedbackBtn = document.getElementById('skip-feedback');
+  const submitFeedbackBtn = document.getElementById('submit-feedback');
+  const thankYouPopup = document.getElementById('thank-you-popup');
+  const closeThankYouBtn = document.getElementById('close-thank-you');
+  const ratingStars = document.querySelectorAll('.rating-star');
+  const ratingText = document.getElementById('rating-text');
+  const categoryTags = document.querySelectorAll('.category-tag');
+  let selectedRating = 0;
+
+  // Handle star rating selection if stars exist
+  if (ratingStars.length > 0) {
+    ratingStars.forEach(star => {
+      star.addEventListener('click', () => {
+        const rating = parseInt(star.getAttribute('data-rating'));
+        selectedRating = rating;
+        
+        // Update visual state of stars
+        ratingStars.forEach(s => {
+          const starRating = parseInt(s.getAttribute('data-rating'));
+          if (starRating <= rating) {
+            s.classList.remove('far');
+            s.classList.add('fas');
+            s.classList.add('active');
+          } else {
+            s.classList.remove('fas');
+            s.classList.add('far');
+            s.classList.remove('active');
+          }
+        });
+        
+        // Update rating text
+        const ratingTexts = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
+        if (ratingText) {
+          ratingText.textContent = ratingTexts[rating];
+        }
+      });
+    });
+  }
+
+  // Handle category tag selection if tags exist
+  if (categoryTags.length > 0) {
+    categoryTags.forEach(tag => {
+      tag.addEventListener('click', () => {
+        const isSelected = tag.getAttribute('data-selected') === 'true';
+        tag.setAttribute('data-selected', isSelected ? 'false' : 'true');
+      });
+    });
+  }
+
+  // Close feedback popup button handling
+  if (closeFeedbackBtn) {
+    closeFeedbackBtn.addEventListener('click', () => {
+      feedbackPopup.style.display = 'none';
+      resetEntireForm(); 
+    });
+  }
+
+  // Skip feedback button handling
+  if (skipFeedbackBtn) {
+    skipFeedbackBtn.addEventListener('click', () => {
+      feedbackPopup.style.display = 'none';
+      resetEntireForm(); 
+    });
+  }
+
+  // Submit feedback button handling
+  if (submitFeedbackBtn) {
+    submitFeedbackBtn.addEventListener('click', () => {
+      // Here you would normally send the feedback data to your server
+      // For this example, we'll just show the thank you popup
+      feedbackPopup.style.display = 'none';
+      if (thankYouPopup) {
+        thankYouPopup.style.display = 'flex';
+      }
+      
+      // Reset feedback form for future use
+      selectedRating = 0;
+      if (ratingStars.length > 0) {
+        ratingStars.forEach(s => {
+          s.classList.remove('fas', 'active');
+          s.classList.add('far');
+        });
+      }
+      
+      if (ratingText) {
+        ratingText.textContent = 'Select a rating';
+      }
+      
+      const commentField = document.getElementById('feedback-comment');
+      if (commentField) {
+        commentField.value = '';
+      }
+      
+      if (categoryTags.length > 0) {
+        categoryTags.forEach(tag => {
+          tag.setAttribute('data-selected', 'false');
+        });
+      }
+    });
+  }
+
+  // Close thank you popup button handling
+  if (closeThankYouBtn) {
+    closeThankYouBtn.addEventListener('click', () => {
+      thankYouPopup.style.display = 'none';
+      resetEntireForm(); 
+    });
+  }
+
+  //--------------------------------//--------------------------------//--------------------------------//--------------------------------
+
+  // Generate form .pdf
+  if (document.getElementById('submit-form')) {
+    document.getElementById('submit-form').addEventListener('click', function() {
+      // Verify that the safety documentation was reviewed
+      const confirmChecked = document.getElementById('confirm-review').checked;
+      if (!confirmChecked) {
+        alert('Please confirm that you have reviewed the safety documentation.');
+        return;
+      }
+
+      // Gather form data
+      const name = document.getElementById('name').value;
+      const company = document.getElementById('company').value;
+      const startDate = document.getElementById('start_date').value;
+      const endDate = document.getElementById('end_date').value;
+      const supervisor = document.getElementById('supervisor').value;
+
+      // Generate unique work permit number
+      const uniqueNumber = "WP-" + Date.now();
+
+      // Create the PDF using jsPDF
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'pt',
+        format: 'A4'
+      });
+
+      // Define page dimensions and margins
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 40;
+
+      // ---------------- Header Section ----------------
+      // Draw a clean header area with a white background
+      doc.setFillColor(255, 255, 255);
+      doc.rect(margin, margin, pageWidth - 2 * margin, 50, 'F');
+
+      // Add the VDL Steelweld logo on the top right
+      const logoWidth = 80;
+      const logoHeight = 40;
+      const logoImageData = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAA6kAAAIPCAMAAACmM2jGAAABEVBMVEUAAAD///8AAAAALFHiABoAZKM/Pz9/f3+/v78ALFL///8ALFBxAA0AS3r///8ALFH///8ALFEAMFAAMlHv7+8vLy8PDw8AMFBfX1+fn58ALFHPz88ALVAALVEALFE4AAYAKlAAK1EAK1IAGSgALFEALVCpABOvr68fHx/f399vb2+Pj49PT0////////////////////////////////////////////8ABgoAEh7///8AUYQAOFsAJT0NAAIAHzJUAAoAPma3ABUAXplGAAgQEBB/AA/UABgqAAWNABAbAAMADBQAV49iAAsALEfGABcARXAzMzObABI3Nzc/AAcXFxcUAAKJABAjAAQAHC1qAAzqFz5WAAAAW3RSTlMA//////////+AQED//4DAwPAQ/////yD//+D/YKDQ/zCwcP+QUP/////////wMGAQ0KBwsCDgUP//kP//////////////////////////////////////////JlvjXwAAMVRJREFUeJztnXmDHMWR9sHiBYbBnp1ZQEhoZEkrmctCEiCxxnu89h723vf5/T/Idld1VmdEnhGRdXT28/sLRl3ddcSvKiufrKy3AAAAAAAAAAAAAADQ87PmvDCszYv2q7Ms35W38XXbX3xt2N3ghHj1dmteGdbmD5qvzdJ8W9zGD9r+4AeG3Q1OiBncMKzNm/ZrszQ/K20jTAUafta2bva81K9N+5VZnlLrH6YCDS/a1o2tdl63X5kVKKgKU4GGxnWz54ctrcwa5FWFqUDDy+Fwf/5uE74avqx4p5ZkvMB/pf79f/mrA//SZnukjNv/9tvf5DZyNPVeq1+DqefCcLjf/0kTPjGaOt40f9xmZdbg69HU5zlVR1Pfs//YuzD1rBg6f7+0183AUDt/oF6Xb4flG63LKtwrqwpTgYrvW9rxmc3U4azxUaN1WYeyqjAVqGja4nx/+DL1ugxxaqOW+FocVH2TzKpgKlAx9uK8ay+cPeN9mnpdxt6tNquyFp8M7YrdUK2UqjAVqGhWOHveMxXPGKc2WpXVKKkKU4GKMab52l44e35pKp6xhr9qsyrrUVAVpgIdw/F2N4dfvK/CiT4WT8UDJVFoQ/w9+Wr8x2HRj3VbYeLzT46qfjmq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";
+
+      doc.addImage(logoImageData, 'PNG', pageWidth - margin - logoWidth, margin + 5, logoWidth, logoHeight);
+
+      // ---------------- Title & Permit Number ----------------
+      let yPos = margin + 70;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(24);
+      doc.setTextColor(0, 0, 0);
+      doc.text("Work Permit", pageWidth / 2, yPos, { align: 'center' });
+
+      // Permit number in a highlighted box
+      yPos += 30;
+      doc.setFillColor(240, 240, 240); // Light gray background
+      doc.roundedRect(margin, yPos - 20, pageWidth - 2 * margin, 30, 5, 5, 'F');
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(12);
+      doc.setTextColor(18, 51, 122);
+      doc.text(`Permit Number: ${uniqueNumber}`, pageWidth / 2, yPos, { align: 'center' });
+
+      // Divider line
+      yPos += 20;
+      doc.setDrawColor(200, 200, 200);
+      doc.setLineWidth(1);
+      doc.line(margin, yPos, pageWidth - margin, yPos);
+
+      // ---------------- Contractor Information ----------------
+      yPos += 30;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      doc.setTextColor(0, 0, 0);
+      doc.text("Contractor Information", margin, yPos);
+
+      yPos += 20;
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(11);
+      doc.text(`Name: ${name}`, margin, yPos);
+      yPos += 20;
+      doc.text(`Company: ${company}`, margin, yPos);
+      yPos += 20;
+      doc.text(`Start Date: ${startDate}`, margin, yPos);
+      yPos += 20;
+      doc.text(`End Date: ${endDate}`, margin, yPos);
+      yPos += 20;
+      doc.text(`Supervisor: ${supervisor}`, margin, yPos);
+
+      // ---------------- Permitted Work Types ----------------
+      yPos += 60;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      doc.text("Permitted Work Types", margin, yPos);
+      doc.setFontSize(11);
+
+      // Gather permitted work types based on checklist selections
+      const permittedWorkTypes = [];
+      const workTypeDescriptions = {
+        'confined_spaces': 'Working in confined spaces',
+        'metal_parts': 'Working with metal parts',
+        'electricity': 'Working with electrical installations/equipment',
+        'hazardous_substances': 'Working with hazardous substances/chemicals',
+        'scatter_magnets': 'Working with scatter magnets',
+        'display_screens': 'Working with display screens/workstations',
+        'working_height': 'Working at height',
+        'ladders_aerial_lifts': 'Using ladders or aerial lifts',
+        'forklifts_telehandlers': 'Operating forklifts or telehandlers',
+        'charging_forklifts': 'Charging electric forklifts',
+        'lifting_equipment': 'Operating lifting equipment',
+        'cutting_drilling_grinding': 'Cutting, drilling or grinding materials',
+        'torch_cutting': 'Performing torch cutting',
+        'sheet_metal': 'Working with sheet metal/shears/press brakes',
+        'welding_rolling': 'Performing welding or using rolling mill',
+        'saws_milling': 'Using band saws or milling machines',
+        'grinder_sanding_lathe': 'Operating bench grinder/sanding machine/lathe',
+        'pneumatic_tools': 'Working with pneumatic equipment/compressed air'
+      };
+
+      for (const [radioName, description] of Object.entries(workTypeDescriptions)) {
+        const radioSelector = `input[name="${radioName}"][value="yes"]:checked`;
+        if (document.querySelector(radioSelector) !== null) {
+          permittedWorkTypes.push(description);
+        }
+      }
+
+      yPos += 20;
+      doc.setFont("helvetica", "normal");
+      if (permittedWorkTypes.length === 0) {
+        doc.text("No specific work types selected.", margin, yPos);
+        yPos += 20;
+      } else {
+        permittedWorkTypes.forEach(workType => {
+          doc.text(`• ${workType}`, margin + 10, yPos);
+          yPos += 20;
+        });
+      }
+
+      // ---------------- Engaging Safety Notice ----------------
+      yPos += 30;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      doc.setTextColor(0, 0, 0);
+      doc.text("Safety Notice", margin, yPos);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(11);
+      doc.setTextColor(0, 0, 0);
+      yPos += 25;
+      const safetyPoints = [
+        "This permit is your key to safe operations – it's valid only for the specified work types and dates.",
+        "Follow all safety procedures detailed in the documentation; they're designed with your well-being in mind.",
+        "Always wear your required personal protective equipment (PPE) to help keep you safe on the job.",
+        "In any emergency, contact your VDL supervisor immediately for assistance.",
+        "Report any incidents, accidents, or near-misses as soon as possible – your feedback is essential.",
+        "Keeping your work area tidy and organized helps prevent accidents and boosts productivity.",
+        "Make sure work areas are clearly marked and cordoned off where needed for your safety.",
+        "Use tools and equipment that are in top condition and suitable for the task at hand."
+      ];
+
+      safetyPoints.forEach(point => {
+        doc.text(`• ${point}`, margin + 10, yPos);
+        yPos += 20;
+      });
+
+      // ---------------- Emergency Contacts ----------------
+      yPos += 30;
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(14);
+      doc.setTextColor(0, 0, 0);
+      doc.text("Emergency Contacts", margin, yPos);
+
+      yPos += 20;
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(11);
+      doc.setTextColor(0, 0, 0);
+      doc.text("Emergency Services: 112", margin, yPos);
+
+      yPos += 20;
+      doc.text("Supervisor phone number: +31 XX", margin, yPos);
+
+      // ---------------- Footer ----------------
+      const today = new Date();
+      const formattedDate = today.toISOString().split('T')[0];
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(10);
+      doc.text(`Issued on ${formattedDate} | Valid from ${startDate} to ${endDate}`, pageWidth / 2, pageHeight - 30, { align: 'center' });
+
+      // Save the PDF
+      doc.save("work_permit.pdf");
+      alert('Work permit generated! Please check your download.');
+      
+      // Show feedback popup after successful PDF generation
+      setTimeout(function() {
+        if (feedbackPopup) {
+          feedbackPopup.style.display = 'flex';
+        }
+      }, 1000);
+    });
+  }
+
+  // Add event listeners to radio buttons to enable dynamic preview
+  document.querySelectorAll('input[type="radio"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+      if (currentStep === 3) {
+        updatePDFs();
+      }
+    });
+  });
+});
+  </script>
+</body>
+</html>
