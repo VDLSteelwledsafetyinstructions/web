@@ -1565,7 +1565,7 @@
         // Create PDF viewer (iframe)
         const pdfViewer = document.createElement('iframe');
         pdfViewer.className = 'pdf-viewer';
-        pdfViewer.src = pdfFile; // Adjust path as needed
+        pdfViewer.src = pdfFile; // or `./${pdfFile}`
         pdfViewer.setAttribute('title', pdfFile);
         
         // Add elements to the container
