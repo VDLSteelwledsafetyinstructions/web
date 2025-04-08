@@ -2159,9 +2159,6 @@ function resetEntireForm() {
       // Send data to Google Sheet - Replace with your actual deployment URL
       fetch('https://script.google.com/macros/s/AKfycbz02ua3jy9QIuaMDQwjS5_7nX_h0T-QuXmJhlkRvftSrSkjAft8ofZJNAwtyec-725GNA/exec', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(formData)
       })
       .then(response => {
