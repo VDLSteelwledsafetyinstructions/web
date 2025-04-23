@@ -1976,7 +1976,7 @@ function resetEntireForm() {
       const supervisor = document.getElementById('supervisor').value;
       
       // Generate unique work permit number
-      const uniqueNumber = "WP-" + Date.now();
+      const uniqueNumber = "PN-" + Date.now();
       
       // Gather permitted work types
       const permittedWorkTypes = [];
@@ -2041,7 +2041,7 @@ function resetEntireForm() {
       doc.setFont("helvetica", "bold");
       doc.setFontSize(24);
       doc.setTextColor(0, 0, 0);
-      doc.text("Work Permit", pageWidth / 2, yPos, { align: 'center' });
+      doc.text("Certificate of Training Completion", pageWidth / 2, yPos, { align: 'center' });
       
       // Permit number in a highlighted box
       yPos += 30;
@@ -2107,11 +2107,11 @@ function resetEntireForm() {
       doc.setTextColor(0, 0, 0);
       yPos += 25;
       const safetyPoints = [
-        "This permit is your key to safe operations – it's valid only for the specified work types and dates.",
-        "Follow all safety procedures detailed in the documentation; they're designed with your well-being in mind.",
-        "Always wear your required personal protective equipment (PPE) to help keep you safe on the job.",
-        "In any emergency, contact your VDL supervisor immediately for assistance.",
-        "Report any incidents, accidents, or near-misses as soon as possible – your feedback is essential.",
+        "This certificate confirms that the above trainee has successfully completed the required instruction(s) related to the specified work types.",
+        "All safety instructions were provided as part of VDL Steelweld’s operational safety training program.",
+        "The certificate holder is expected to apply this knowledge when performing related tasks to ensure personal and workplace safety.",
+        "Appropriate personal protective equipment (PPE) should be worn during all related activities",
+        "In case of any doubt or unusual situation, the trainee should immediately contact the VDL supervisor.",
         "Keeping your work area tidy and organized helps prevent accidents and boosts productivity.",
       ];
       safetyPoints.forEach(point => {
@@ -2180,7 +2180,7 @@ function resetEntireForm() {
         }, 1000);
       });
       
-      alert('Work permit generated! Please check your download.');
+      alert('Certificate of training ompletion is generated! Please check your download.');
     });
   }
   
